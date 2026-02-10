@@ -46,8 +46,8 @@ A comprehensive Flask-based web application for automated supermarket inventory 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/CNZkeven/Inbound-Inventory-List-and-Invoice-Reconciliation-System-supported-by-Volcano-Engine-
-cd Inbound-Inventory-List-and-Invoice-Reconciliation-System-supported-by-Volcano-Engine-
+git clone https://github.com/CNZkeven/https://github.com/CNZkeven/IILIRS.git
+cd IILIRS
 ```
 
 2. Install dependencies:
