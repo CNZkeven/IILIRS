@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超市入库清单核对系统</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Marked.js 用于 Markdown 渲染 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="ios-header">
+            <h1>入库清单核对系统</h1>
+        </header>
+
+        <!-- API Key 设置区域 -->
+        <div class="ios-card api-settings">
+            <div class="card-header">
+                <span class="card-icon">&#128273;</span>
+                <span class="card-title">API 设置</span>
+            </div>
+            <div class="card-content">
+                <div class="ios-input-group">
+                    <label for="apiKey">火山引擎 API Key</label>
+                    <input type="password" id="apiKey" class="ios-input" placeholder="请输入您的 API Key">
+                    <button class="ios-btn-small" onclick="toggleApiKeyVisibility()">显示</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 - 三个板块 -->
+        <div class="panels-container">
+            <!-- 板块1: 入库清单图片转MD -->
+            <div class="ios-card panel">
+                <div class="card-header">
+                    <span class="card-icon">&#128230;</span>
+                    <span class="card-title">入库清单</span>
+                    <span class="image-count" id="inventoryImageCount">0 张图片</span>
+                </div>
+                <div class="card-content">
+                    <!-- 多图片上传区域 -->
+                    <div class="upload-area" id="inventoryUploadArea">
+                        <input type="file" id="inventoryImageInput" accept="image/*" multiple hidden>
+                        <div class="upload-placeholder" onclick="document.getElementById('inventoryImageInput').click()">
+                            <span class="upload-icon">&#128247;</span>
+                            <span class="upload-text">点击或拖拽上传入库清单图片（支持多张）</span>
+                        </div>
+                    </div>
+
+                    <!-- 图片预览列表 -->
+                    <div class="images-preview-list" id="inventoryPreviewList"></div>
+
+                    <!-- 提示词输入区域 -->
+                    <div class="ios-input-group">
+                        <label for="inventoryPrompt">分析提示词</label>
+                        <textarea id="inventoryPrompt" class="ios-textarea" placeholder="请输入入库清单分析提示词..."></textarea>
+                    </div>
+
+                    <!-- 进度条 -->
+                    <div class="progress-container" id="inventoryProgress" style="display: none;">
+                        <div class="progress-info">
+                            <span id="inventoryProgressText">正在分析...</span>
+                            <span id="inventoryProgressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="inventoryProgressFill"></div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <button class="ios-btn ios-btn-primary" id="inventoryAnalyzeBtn" onclick="analyzeInventory()">
+                        <span class="btn-icon">&#9881;</span>
+                        <span>分析入库清单</span>
+                    </button>
+
+                    <!-- 可编辑的结果显示区域 -->
+                    <div class="result-area" id="inventoryResultArea" style="display: none;">
+                        <div class="result-header">
+                            <span>分析结果（可编辑）</span>
+                            <div class="result-actions">
+                                <button class="ios-btn-small" onclick="copyResult('inventory')">复制</button>
+                                <button class="ios-btn-small ios-btn-green" onclick="saveResult('inventory')">保存修改</button>
+                            </div>
+                        </div>
+                        <textarea class="result-editor" id="inventoryResult" placeholder="分析结果将显示在这里，您可以进行编辑修改..."></textarea>
+                    </div>
+
+                    <!-- 预览按钮 -->
+                    <button class="ios-btn ios-btn-secondary" id="inventoryPreviewBtn" onclick="openPreviewModal('inventory')" style="display: none; margin-top: 12px;">
+                        <span class="btn-icon">&#128196;</span>
+                        <span>预览 MD 文档</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 板块2: 电子发票图片转MD -->
+            <div class="ios-card panel">
+                <div class="card-header">
+                    <span class="card-icon">&#128196;</span>
+                    <span class="card-title">电子发票</span>
+                    <span class="image-count" id="invoiceImageCount">0 张图片</span>
+                </div>
+                <div class="card-content">
+                    <!-- 多图片上传区域 -->
+                    <div class="upload-area" id="invoiceUploadArea">
+                        <input type="file" id="invoiceImageInput" accept="image/*" multiple hidden>
+                        <div class="upload-placeholder" onclick="document.getElementById('invoiceImageInput').click()">
+                            <span class="upload-icon">&#128196;</span>
+                            <span class="upload-text">点击或拖拽上传电子发票图片（支持多张）</span>
+                        </div>
+                    </div>
+
+                    <!-- 图片预览列表 -->
+                    <div class="images-preview-list" id="invoicePreviewList"></div>
+
+                    <!-- 提示词输入区域 -->
+                    <div class="ios-input-group">
+                        <label for="invoicePrompt">分析提示词</label>
+                        <textarea id="invoicePrompt" class="ios-textarea" placeholder="请输入电子发票分析提示词..."></textarea>
+                    </div>
+
+                    <!-- 进度条 -->
+                    <div class="progress-container" id="invoiceProgress" style="display: none;">
+                        <div class="progress-info">
+                            <span id="invoiceProgressText">正在分析...</span>
+                            <span id="invoiceProgressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="invoiceProgressFill"></div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <button class="ios-btn ios-btn-primary" id="invoiceAnalyzeBtn" onclick="analyzeInvoice()">
+                        <span class="btn-icon">&#9881;</span>
+                        <span>分析电子发票</span>
+                    </button>
+
+                    <!-- 可编辑的结果显示区域 -->
+                    <div class="result-area" id="invoiceResultArea" style="display: none;">
+                        <div class="result-header">
+                            <span>分析结果（可编辑）</span>
+                            <div class="result-actions">
+                                <button class="ios-btn-small" onclick="copyResult('invoice')">复制</button>
+                                <button class="ios-btn-small ios-btn-green" onclick="saveResult('invoice')">保存修改</button>
+                            </div>
+                        </div>
+                        <textarea class="result-editor" id="invoiceResult" placeholder="分析结果将显示在这里，您可以进行编辑修改..."></textarea>
+                    </div>
+
+                    <!-- 预览按钮 -->
+                    <button class="ios-btn ios-btn-secondary" id="invoicePreviewBtn" onclick="openPreviewModal('invoice')" style="display: none; margin-top: 12px;">
+                        <span class="btn-icon">&#128196;</span>
+                        <span>预览 MD 文档</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 板块3: 核对比较 -->
+            <div class="ios-card panel panel-compare">
+                <div class="card-header">
+                    <span class="card-icon">&#128269;</span>
+                    <span class="card-title">核对比较</span>
+                    <button class="ios-btn-small" onclick="syncData()">&#128260; 同步数据</button>
+                </div>
+                <div class="card-content">
+                    <!-- 数据预览区域 -->
+                    <div class="sync-preview">
+                        <div class="sync-item">
+                            <div class="sync-header">
+                                <span class="sync-icon">&#128230;</span>
+                                <span>入库清单数据</span>
+                                <span class="sync-status" id="inventorySyncStatus">未同步</span>
+                            </div>
+                            <div class="sync-content" id="inventorySyncPreview">暂无数据，请先分析入库清单</div>
+                        </div>
+                        <div class="sync-item">
+                            <div class="sync-header">
+                                <span class="sync-icon">&#128196;</span>
+                                <span>电子发票数据</span>
+                                <span class="sync-status" id="invoiceSyncStatus">未同步</span>
+                            </div>
+                            <div class="sync-content" id="invoiceSyncPreview">暂无数据，请先分析电子发票</div>
+                        </div>
+                    </div>
+
+                    <!-- 提示词输入区域 -->
+                    <div class="ios-input-group">
+                        <label for="comparePrompt">核对提示词</label>
+                        <textarea id="comparePrompt" class="ios-textarea" placeholder="请输入核对比较提示词..."></textarea>
+                    </div>
+
+                    <!-- 进度条 -->
+                    <div class="progress-container" id="compareProgress" style="display: none;">
+                        <div class="progress-info">
+                            <span id="compareProgressText">正在核对...</span>
+                            <span id="compareProgressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="compareProgressFill"></div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <button class="ios-btn ios-btn-accent" id="compareBtn" onclick="compareRecords()">
+                        <span class="btn-icon">&#128269;</span>
+                        <span>开始核对</span>
+                    </button>
+
+                    <!-- 聊天框式核对结果 -->
+                    <div class="chat-container" id="chatContainer" style="display: none;">
+                        <div class="chat-header">
+                            <span>&#128172; 核对结果对话</span>
+                            <button class="ios-btn-small" onclick="clearChat()">清空</button>
+                        </div>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input-area">
+                            <textarea class="chat-input" id="chatInput" placeholder="输入追问或补充说明..."></textarea>
+                            <button class="ios-btn-send" onclick="sendChatMessage()">
+                                <span>&#10148;</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 预览按钮 -->
+                    <button class="ios-btn ios-btn-secondary" id="comparePreviewBtn" onclick="openPreviewModal('compare')" style="display: none; margin-top: 12px;">
+                        <span class="btn-icon">&#128196;</span>
+                        <span>预览核对结果</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载遮罩 -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <span class="loading-text" id="loadingText">正在处理中...</span>
+        </div>
+
+        <!-- MD 预览模态框 -->
+        <div class="preview-modal-overlay" id="previewModalOverlay" style="display: none;">
+            <div class="preview-modal">
+                <div class="preview-modal-header">
+                    <span class="preview-modal-title" id="previewModalTitle">MD 文档预览</span>
+                    <div class="preview-modal-actions">
+                        <button class="ios-btn-small ios-btn-green" onclick="savePreviewContent()">保存修改</button>
+                        <button class="ios-btn-small" onclick="closePreviewModal()">关闭</button>
+                    </div>
+                </div>
+                <div class="preview-modal-content">
+                    <div class="preview-pane preview-editor-pane">
+                        <div class="preview-pane-header">
+                            <span class="preview-pane-icon">&#9998;</span>
+                            <span>编辑 Markdown</span>
+                        </div>
+                        <textarea class="preview-editor" id="previewEditor" placeholder="在此编辑 Markdown 内容..."></textarea>
+                    </div>
+                    <div class="preview-divider"></div>
+                    <div class="preview-pane preview-render-pane">
+                        <div class="preview-pane-header">
+                            <span class="preview-pane-icon">&#128064;</span>
+                            <span>渲染预览</span>
+                        </div>
+                        <div class="preview-render" id="previewRender"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast 提示 -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
