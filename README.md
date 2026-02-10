@@ -216,16 +216,16 @@ The executable will be generated in the `dist/` directory.
 
 ```
 test/
-鈹溾攢鈹€ app.py              # Main Flask application
-鈹溾攢鈹€ build.py            # PyInstaller build script
-鈹溾攢鈹€ requirements.txt    # Python dependencies
-鈹溾攢鈹€ .env.example        # Environment variables template
-鈹溾攢鈹€ static/
-鈹�   鈹溾攢鈹€ app.js          # Frontend JavaScript
-鈹�   鈹斺攢鈹€ style.css       # Stylesheet
-鈹溾攢鈹€ templates/
-鈹�   鈹斺攢鈹€ index.html      # Main HTML template
-鈹斺攢鈹€ README.md           # This file
+app.py              # Main Flask application
+build.py            # PyInstaller build script
+requirements.txt    # Python dependencies
+.env.example        # Environment variables template
+static/
+app.js          # Frontend JavaScript
+style.css       # Stylesheet
+templates/
+index.html      # Main HTML template
+README.md           # This file
 ```
 
 ## Error Handling
@@ -258,11 +258,3 @@ The application includes comprehensive error handling:
 ### Browser not opening automatically
 - The application logs the URL to the console
 - Manually navigate to `http://127.0.0.1:5000`
-
-## License
-
-This project is proprietary software. All rights reserved.
-
-## Support
-
-For issues and inquiries, please contact the development team or create an issue in the repository.
