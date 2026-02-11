@@ -1,4 +1,5 @@
 # 基于火山引擎支持的进货清单与发票核对系统 (IILIRS)
+# Inbound-Inventory-List-and-Invoice-Reconciliation-System-supported-by-Volcano-Engine-
 
 这是一个基于 Flask 的综合 Web 应用程序，用于自动化的超市库存清单核对与电子发票验证。该系统由火山引擎（Volcengine）AI 多模态模型驱动，能够智能提取库存清单和电子发票中的商品信息，将其转换为结构化的 Markdown 格式，并进行自动交叉验证，以识别商品名称、包装单位、金额和数量上的差异。
 
